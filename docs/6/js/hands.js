@@ -7,10 +7,7 @@ class Hands {
         this._size = {height:16}
         this._num = {height:7}
     }
-    init() {
-        this.#addEl()
-        this.#addEvents()
-    }
+    init() {this.#addEl(); this.#addEvents();}
     get hands() { return this._hands }
     set hands(v) {
         this._hands = v
