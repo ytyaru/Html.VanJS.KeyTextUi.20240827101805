@@ -5,8 +5,7 @@ class Hands {
         //this._hands = van.state(hands)
         this._hands = [lHands,rHands]
 //        this._el = van.tags.ol(hands.map(h=>van.tags.li(h)))
-        //this._keyPos = {x:0,y:0}
-        this._keyPos = {x:0,y:[0,0]}
+        this._keyPos = {x:0,y:0}
         this._size = {height:16}
         this._num = {height:7}
         //this._keyPos = {x: van.state(0), y: van.state(0)}
@@ -41,37 +40,36 @@ class Hands {
         window.addEventListener('keydown', async(e)=>{
             // ctrlKey, isComposing, metaKey, repeat, shiftKey
             /*
+            if ('ArrowUp'===e.key) { this._keyPos.y.val = 0===this._keyPos.y.val ? this._hands.val.length-1 : this._keyPos.y.val-1; this.#showCursor(-1); console.log(this._keyPos.y.val); }
+            if ('ArrowDown'===e.key) { this._keyPos.y.val = this._hands.val.length-1===this._keyPos.y.val ? 0 : this._keyPos.y.val+1; this.#showCursor(+1); console.log(this._keyPos.y.val);  }
+            if ('ArrowLeft'===e.key){}
+            if ('ArrowRight'===e.key){}
+            */
             if ('ArrowUp'===e.key) { this._keyPos.y = 0===this._keyPos.y ? this._hands[this._keyPos.x].length-1 : this._keyPos.y-1; this.#showCursor(0,-1); console.log(this._keyPos.y); }
             else if ('ArrowDown'===e.key) { this._keyPos.y = this._hands[this._keyPos.x].length-1===this._keyPos.y ? 0 : this._keyPos.y+1; this.#showCursor(0,+1); console.log(this._keyPos.y);  }
             else if ('ArrowLeft'===e.key){this._keyPos.x = 0===this._keyPos.x ? this._hands.length-1 : this._keyPos.x-1; this.#showCursor(-1,0); console.log(this._keyPos.x);}
             else if ('ArrowRight'===e.key){this._keyPos.x = this._hands.length-1===this._keyPos.x ? 0 : this._keyPos.x+1; this.#showCursor(+1,0); console.log(this._keyPos.y); }
-            */
-            if ('ArrowUp'===e.key) {
-                const y = this._keyPos.y[this._keyPos.x]
-                this._keyPos.y[this._keyPos.x] = 0===y ? this._hands[this._keyPos.x].length-1 : y-1; this.#showCursor(0,-1); console.log(y); }
-            else if ('ArrowDown'===e.key) {
-                const y = this._keyPos.y[this._keyPos.x]
-                this._keyPos.y[this._keyPos.x] = this._hands[this._keyPos.x].length-1===y ? 0 : y+1; this.#showCursor(0,+1); console.log(y); }
-            else if ('ArrowLeft'===e.key){this._keyPos.x = 0===this._keyPos.x ? this._hands.length-1 : this._keyPos.x-1; this.#showCursor(-1,0); console.log(this._keyPos.x);}
-            else if ('ArrowRight'===e.key){this._keyPos.x = this._hands.length-1===this._keyPos.x ? 0 : this._keyPos.x+1; this.#showCursor(+1,0); console.log(this._keyPos.y); }
-
         })
     }
+    //#make(){return van.tags.ol({id:this._id, style:()=>`max-height:100px;overflow-y:auto;`}, this._hands.val.map((v,i)=>van.tags.li(v)))}
+    //#make(){return van.tags.ol({id:this._id, style:()=>`max-height:${this._size.height.val*7}px;overflow-y:auto;`}, this._hands.val.map((v,i)=>van.tags.li(v)))}
+    //#make(){return van.tags.ol({id:this._id, style:()=>`max-height:${this._size.height.val*this._num.height.val}px;overflow-y:auto;`}, this._hands.val.map((v,i)=>van.tags.li(v)))}
     #make(hands){return van.tags.ol({id:this._id, style:()=>`max-height:${this._size.height*this._num.height}px;overflow-y:auto;`}, hands.map((v,i)=>van.tags.li(v)))}
 
     #showCursor(dirX, dirY) {
+        //const lis = [...document.querySelectorAll(`#${this._id} > li`)]
         const lefts = [...document.querySelectorAll(`#left li`)]
         const rights = [...document.querySelectorAll(`#right li`)]
         //const lis = [...document.querySelectorAll(`main li`)]
         const lis = [...lefts, ...rights]
         console.log(lefts, rights, lis)
         lis.map(li=>li.classList.remove('selected'));
+        //const selected = lis.filter((li,i)=>i===this._keyPos.y.val)[0]
+        //const selected = lis.filter((li,i)=>i===this._keyPos.y)[0]
+        //const selected = this._hands[this._keyPos.x].filter((li,i)=>i===this._keyPos.y)[0]
         console.log(this._keyPos.x)
         console.log((0===this._keyPos.x ? lefts : rights))
-        //const selected = (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===this._keyPos.y)[0]
-        //const y = this._keyPos.y[this._keyPos.x]
-        //const selected = (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===y)[0]
-        const selected = (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===this._keyPos.y[this._keyPos.x])[0]
+        const selected = (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===this._keyPos.y)[0]
         console.log(selected)
         selected.classList.add('selected');
         selected.scrollIntoView()
