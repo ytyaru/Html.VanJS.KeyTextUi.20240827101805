@@ -48,13 +48,52 @@ class Hands {
             const selected = e.target
             console.log(selected.parentElement.tagName.toLowerCase(), this._id===selected.parentElement.name, selected.parentElement.name, selected.parentElement.getAttribute('name'))
             if ('ol'===selected.parentElement.tagName.toLowerCase() && this._id===selected.parentElement.getAttribute('name')) {
-                [...document.querySelectorAll(`div[name="hands"] li`)].map(li=>li.classList.remove('selected'));
+                //[...document.querySelectorAll(`div[name="hands"] li`)].map(li=>li.classList.remove('selected'));
+                [...document.querySelectorAll(`ol[name="hands"] li`)].map(li=>li.classList.remove('selected'));
+                const dirId = e.target.parentElement?.parentElement?.parentElement?.id
+                this._keyPos.x = 'left'===dirId ? 0 : 1
+                this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].filter((li,i)===selected)
                 selected.classList.add('selected')
                 selected.scrollIntoView()
             }
         })
+
+        window.addEventListener('wheel', (e)=>{
+            console.log('wheel:', e.target, e)
+            const dirId = e.target.parentElement?.parentElement?.parentElement?.id
+            console.log(e.target)
+            console.log(e.target.parentElement.parentElement.parentElement)
+//            console.log(e.target.parentElement.parentElement.parentElement.parentElement)
+            if (['left','right'].some(id=>id===e.target.parentElement.parentElement.parentElement.id)) {
+                this._keyPos.x = 'left'===dirId ? 0 : 1
+                //this._keyPos.x = 'left'===e.target.parentElement.parentElement.parentElement.parentElement.id ? 0 : 1
+                if (0<e.deltaY) {
+                    if (e.target===e.target.parentElement.lastElementChild) { // 末尾から更に下へ行こうとしたとき最上へ
+                        this._keyPos.y[this._keyPos.x]=0
+                        e.target.parentElement.scrollTo(0,0)
+                    } else {
+                        this._keyPos.y[this._keyPos.x]++
+                        e.target.parentElement.scrollBy(0,this._size.height)
+                    }
+                }
+                if (e.deltaY<0) {
+                    if (e.target===e.target.parentElement.firstElementChild) { // 先頭から更に上へ行こうとしたとき最下へ
+                        this._keyPos.y[this._keyPos.x]=this._hands[this._keyPos.x].length-1
+                        e.target.parentElement.scrollTo(0,this._keyPos.y[this._keyPos.x]*this._size.height)
+                    } else {
+                        this._keyPos.y[this._keyPos.x]--
+                        e.target.parentElement.scrollBy(0,-this._size.height)
+                    }
+                }
+                this.#showCursor()
+                e.preventDefault();
+            }
+        }, {passive:false})
+        /*
         for(let target of [...document.querySelectorAll(`ol[name="hands"]`)]) {
-            target.addEventListener('wheel', async(e)=>{
+            console.log(target)
+            target.addEventListener('wheel', (e)=>{
+//            target.addEventListener('scroll', (e)=>{
             //window.addEventListener('wheel', async(e)=>{
     //            console.log(e.deltaY, e.deltaMode, e.wheelDeltaY)
                 console.log(e.deltaY, e.target)
@@ -88,8 +127,8 @@ class Hands {
                     e.preventDefault();
                 }
             }, {passive:false})
-
         }
+            */
     }
 //    #make(hands){return van.tags.ol({id:this._id, style:()=>`max-height:${this._size.height*this._num.height}px;overflow-y:auto;`}, hands.map((v,i)=>van.tags.li(v)))}
     #make(hands){return van.tags.ol({name:this._id, style:()=>`max-height:${this._size.height*this._num.height}px;overflow-y:auto;`}, hands.map((v,i)=>van.tags.li(v)))}
