@@ -107,6 +107,23 @@ class Hands {
         selected.scrollIntoView()
     }
 }
+class KeyPos {
+    constructor(hands) {
+        this._focus = false
+        this._x = 0
+        this._y = [0, 0]
+        this._hands = hands
+    }
+    get x() { return this._x }
+    get y() { return this._y[this._x] }
+    set x(v) {
+    }
+    set y(v) {
+        if (v<0) { this._x = 0 }
+        else if (this._hands[this._x].length-1<v) { this._x = this._hands[this._x].length-1 }
+        else { this._x = v }
+    }
+}
 //window.Hands = new Hands([])
 //window.Hands = new Hands([''])
 //window.Hands = new Hands(['A'])
