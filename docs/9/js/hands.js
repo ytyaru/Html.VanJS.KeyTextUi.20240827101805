@@ -116,20 +116,33 @@ class KeyPos {
     }
     get x() { return this._x }
     get y() { return this._y[this._x] }
+    get lastY() { return this._hands[this._x].length-1 }
     set x(v) {
 //        if (v<0) { this._x = 0 }
 //        else if (this._hands[this._x].length-1<v) { this._x = this._hands[this._x].length-1 }
         if (v<0) { this._x = 1 }
         else if (1<v) { this._x = 0 }
         else { this._x = v }
+        this.show()
     }
     set y(v) {
+        const o = this._y[this._x]
 //        if (v<0) { this._x = 0 }
 //        else if (this._hands[this._x].length-1<v) { this._x = this._hands[this._x].length-1 }
         if (v<0) { this._y[this._x] = 0 }
         else if (this._hands[this._x].length-1<v) { this._y[this._x] = this._hands[this._x].length-1 }
         else { this._x = v }
+        this.show()
     }
+    show() {
+        const lefts = [...document.querySelectorAll(`#left div[name=hands] li`)]
+        const rights = [...document.querySelectorAll(`#right div[name=hands] li`)]
+        const lis = [...lefts, ...rights]
+        lis.map(li=>li.classList.remove('selected'));
+        selected.classList.add('selected');
+    }
+}
+class ListUi {
 }
 //window.Hands = new Hands([])
 //window.Hands = new Hands([''])
