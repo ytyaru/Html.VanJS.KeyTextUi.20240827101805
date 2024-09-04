@@ -161,6 +161,7 @@ class ListUi {
         if (Array.isArray(v) && 2===v.length && v.every(i=>Array.isArray(i))) {
             this._hands = v
             this.#remake()
+            this.show()
         }
         return this._hands
     }
@@ -175,14 +176,18 @@ class ListUi {
         document.querySelector(`#left div[name=hands] ol`).replaceWith(this.#make(v[0]))
         document.querySelector(`#right div[name=hands] ol`).replaceWith(this.#make(v[1]))
     }
-    show() {
+    get selected() { return (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===this._keyPos.y[this._keyPos.x])[0] }
+    show() {this.clear(); this.selected.classList.add('selected');}
+    clear() {[...document.querySelectorAll(`ol[name=hands] li`)].map(li=>li.classList.remove('selected'));}
+    /*
+    clear() {
         const lefts = [...document.querySelectorAll(`#left div[name=hands] li`)]
         const rights = [...document.querySelectorAll(`#right div[name=hands] li`)]
         const lis = [...lefts, ...rights]
         lis.map(li=>li.classList.remove('selected'));
-        const selected = (0===this._keyPos.x ? lefts : rights).filter((li,i)=>i===this._keyPos.y[this._keyPos.x])[0]
-        selected.classList.add('selected');
+        [...document.querySelectorAll(`ol[name=hands] li`)].map(li=>li.classList.remove('selected'));
     }
+    */
 }
 //window.Hands = new Hands([])
 //window.Hands = new Hands([''])
