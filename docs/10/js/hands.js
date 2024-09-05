@@ -134,6 +134,7 @@ class KeyPos {
         else { this._x = v }
         this.show()
     }
+    /*
     show() {
         const lefts = [...document.querySelectorAll(`#left div[name=hands] li`)]
         const rights = [...document.querySelectorAll(`#right div[name=hands] li`)]
@@ -141,6 +142,7 @@ class KeyPos {
         lis.map(li=>li.classList.remove('selected'));
         selected.classList.add('selected');
     }
+    */
 }
 class ListUi {
     constructor(hands) {
