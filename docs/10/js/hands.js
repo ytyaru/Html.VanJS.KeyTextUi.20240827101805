@@ -132,7 +132,7 @@ class KeyPos {
         if (v<0) { this._y[this._x] = 0 }
         else if (this._hands[this._x].length-1<v) { this._y[this._x] = this._hands[this._x].length-1 }
         else { this._x = v }
-        this.show()
+        //this.show()
     }
     /*
     show() {
@@ -202,6 +202,23 @@ class ListUi {
             else if ('ArrowDown'===e.key) { this._keyPos.y = this._hands[this._keyPos.x].length-1===y ? 0 : y+1; this.show(); console.log(y); e.preventDefault(); }
             else if ('ArrowLeft'===e.key){this._keyPos.x = 0===this._keyPos.x ? this._hands.length-1 : this._keyPos.x-1; this.show(); console.log(this._keyPos.x);e.preventDefault();}
             else if ('ArrowRight'===e.key){this._keyPos.x = this._hands.length-1===this._keyPos.x ? 0 : this._keyPos.x+1; this.#show(); console.log(this._keyPos.y); e.preventDefault();}
+        })
+        window.addEventListener('mouseenter', async(e)=>{
+            const selected = e.target
+            if ('ol'===selected.parentElement.tagName.toLowerCase() && this._id===selected.parentElement.getAttribute('name')) {
+                const dirId = e.target.parentElement?.parentElement?.parentElement?.parentElement?.id
+                if (!['left','right'].some(v=>v===dirId)) {return}
+                //console.log([...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)])
+                this._keyPos.x = 'left'===dirId ? 0 : 1
+                this._keyPos.y = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
+                //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
+                //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].filter((li,i)=>li===selected)
+                this.show()
+//                [...document.querySelectorAll(`ol[name="hands"] li`)].map(li=>li.classList.remove('selected'));
+//                selected.classList.add('selected')
+//                selected.scrollIntoView()
+            }
+
         })
         window.addEventListener('click', async(e)=>{
             const selected = e.target
