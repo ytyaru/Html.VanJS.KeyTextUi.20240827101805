@@ -134,6 +134,8 @@ class KeyPos {
         else { this._x = v }
         //this.show()
     }
+    get hand() { return this._hands[this._x] }
+    set hand(v) { this._hands[this._x] = v }
     /*
     show() {
         const lefts = [...document.querySelectorAll(`#left div[name=hands] li`)]
@@ -208,17 +210,11 @@ class ListUi {
             if ('ol'===selected.parentElement.tagName.toLowerCase() && this._id===selected.parentElement.getAttribute('name')) {
                 const dirId = e.target.parentElement?.parentElement?.parentElement?.parentElement?.id
                 if (!['left','right'].some(v=>v===dirId)) {return}
-                //console.log([...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)])
                 this._keyPos.x = 'left'===dirId ? 0 : 1
                 this._keyPos.y = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
-                //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
-                //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].filter((li,i)=>li===selected)
                 this.show()
-//                [...document.querySelectorAll(`ol[name="hands"] li`)].map(li=>li.classList.remove('selected'));
-//                selected.classList.add('selected')
 //                selected.scrollIntoView()
             }
-
         })
         window.addEventListener('click', async(e)=>{
             const selected = e.target
@@ -228,7 +224,8 @@ class ListUi {
                 const dirId = e.target.parentElement?.parentElement?.parentElement?.parentElement?.id
                 console.log([...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)])
                 this._keyPos.x = 'left'===dirId ? 0 : 1
-                this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
+                this._keyPos.y = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
+                //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].map((li,i)=>[li,i]).filter(([li,i])=>li===selected)[0][1]
                 //this._keyPos.y[this._keyPos.x] = [...document.querySelectorAll(`#${dirId} ol[name="hands"] li`)].filter((li,i)=>li===selected)
                 selected.classList.add('selected')
 //                selected.scrollIntoView()
@@ -252,13 +249,16 @@ class ListUi {
                 // 縦
                 if (0<e.deltaY) {
                     if (lastLi===selected) { // 末尾から更に下へ行こうとしたとき最上へ
-                        this._keyPos.y[this._keyPos.x]=0
+                        //this._keyPos.y[this._keyPos.x]=0
+                        this._keyPos.y=0
                         e.target.parentElement.scrollTo(0,0)
                         //document.querySelector(`#${dirId} ol[name="hands"]`).scrollTo(0,0)
                         console.log('0<e.deltaY if:', this._keyPos)
                     } else {
-                        this._keyPos.y[this._keyPos.x]++
-                        if (this._hands[this._keyPos.x].length-1<this._keyPos.y[this._keyPos.x]) { this._keyPos.y[this._keyPos.x]=this._hands[this._keyPos.x].length-1 }
+                        //this._keyPos.y[this._keyPos.x]++
+                        this._keyPos.y++
+                        //if (this._hands[this._keyPos.x].length-1<this._keyPos.y[this._keyPos.x]) { this._keyPos.y[this._keyPos.x]=this._hands[this._keyPos.x].length-1 }
+                        if (this._hands[this._keyPos.x].length-1<this._keyPos.y) { this._keyPos.y=this._hands[this._keyPos.x].length-1 }
                         e.target.parentElement.scrollBy(0,this._size.height)
                         //document.querySelector(`#${dirId} ol[name="hands"]`).scrollBy(0,this._size.height)
                         console.log('0<e.deltaY else:', this._keyPos)
@@ -266,13 +266,17 @@ class ListUi {
                 }
                 if (e.deltaY<0) {
                     if (firstLi===selected) { // 先頭から更に上へ行こうとしたとき最下へ
-                        this._keyPos.y[this._keyPos.x]=this._hands[this._keyPos.x].length-1
-                        e.target.parentElement.scrollTo(0,this._keyPos.y[this._keyPos.x]*this._size.height)
+                        //this._keyPos.y[this._keyPos.x]=this._hands[this._keyPos.x].length-1
+                        this._keyPos.y=this._hands[this._keyPos.x].length-1
+                        //e.target.parentElement.scrollTo(0,this._keyPos.y[this._keyPos.x]*this._size.height)
+                        e.target.parentElement.scrollTo(0,this._keyPos.y*this._size.height)
                         //document.querySelector(`#${dirId} ol[name="hands"]`).scrollTo(0,this._keyPos.y[this._keyPos.x]*this._size.height)
                         console.log('if:', this._keyPos)
                     } else {
-                        this._keyPos.y[this._keyPos.x]--
-                        if (this._keyPos.y[this._keyPos.x]<0) { this._keyPos.y[this._keyPos.x]=0 }
+                        //this._keyPos.y[this._keyPos.x]--
+                        this._keyPos.y--
+                        //if (this._keyPos.y[this._keyPos.x]<0) { this._keyPos.y[this._keyPos.x]=0 }
+                        if (this._keyPos.y<0) { this._keyPos.y=0 }
                         e.target.parentElement.scrollBy(0,-this._size.height)
                         //document.querySelector(`#${dirId} ol[name="hands"]`).scrollBy(0,-this._size.height)
                         console.log('else:', this._keyPos)
