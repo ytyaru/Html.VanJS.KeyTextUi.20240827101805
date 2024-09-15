@@ -36,22 +36,6 @@ window.addEventListener('DOMContentLoaded', async(event)=>{
     van.add(document.body, pager.el)
     */
     /*
-    */
-    const pager = new Pager({
-        row:5,
-        height:64,
-        onShow:(id)=>{
-            switch(id) {
-                case 0: return `0です`
-                case 1: return `1なの`
-                case 2: return `2だろ`
-                default: return `${id}番`
-            }
-        },
-        items:[...Array(100)].map((_,i)=>i),
-    })
-    van.add(document.body, pager.el)
-    /*
     const list = new List({
         row:5,
         height:64,
@@ -67,6 +51,36 @@ window.addEventListener('DOMContentLoaded', async(event)=>{
     })
     van.add(document.body, list.el)
     */
+    /*
+    const pager = new Pager({
+        row:5,
+        height:64,
+        onShow:(id)=>{
+            switch(id) {
+                case 0: return `0です`
+                case 1: return `1なの`
+                case 2: return `2だろ`
+                default: return `${id}番`
+            }
+        },
+        items:[...Array(100)].map((_,i)=>i),
+    })
+    van.add(document.body, pager.el)
+    */
+    const fixList = new FixList({
+        row:7,
+        height:64,
+        onMakeLiChild:(id)=>document.createTextNode(((id)=>{
+            switch(id) {
+                case 0: return `0です`
+                case 1: return `1なの`
+                case 2: return `2だろ`
+                default: return `${id}番`
+            }
+        })(id)),
+        items:[...Array(100)].map((_,i)=>i),
+    })
+    van.add(document.body, fixList.el)
 
     /*
     Display.init();
