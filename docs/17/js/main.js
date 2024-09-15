@@ -68,7 +68,7 @@ window.addEventListener('DOMContentLoaded', async(event)=>{
     van.add(document.body, pager.el)
     */
     const fixList = new FixList({
-        row:7,
+        row:6,
         height:64,
         onMakeLiChild:(id)=>document.createTextNode(((id)=>{
             switch(id) {

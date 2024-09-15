@@ -84,7 +84,32 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
 //        this._onWheelDown = (e)=>{this.page.now++;this.#updateLiChild();}
         this._onWheelLeft = (e)=>{}
         this._onWheelRight = (e)=>{}
-        this._onKeyDown = (e)=>{}
+        this._onKeyDown = (e)=>{
+                 if ('ArrowUp'===e.key) {this.y--;this.#show();}
+            else if ('ArrowDown'===e.key) {this.y++;this.#show();}
+            else if ('ArrowLeft'===e.key) {this.prevPage()}
+            else if ('ArrowRight'===e.key) {this.nextPage()}
+            else if (' '===e.key && e.shiftKey) {this.prevPage()}
+            else if (' '===e.key) {this.nextPage()}
+            else if ('PageUp'===e.key) {this.prevPage()}
+            else if ('PageDown'===e.key) {this.nextPage()}
+
+//            else if ('ArrowLeft'===e.key) {this.y-=this.row}
+//            else if ('ArrowRight'===e.key) {this.y+=this.row}
+//            else if (' '===e.key && e.shiftKey) {this.y-=this.row}
+//            else if (' '===e.key) {this.y+=this.row}
+//            else if ('PageUp'===e.key) {this.y-=this.row}
+//            else if ('PageDown'===e.key) {this.y+=this.row}
+
+//            else if ('ArrowLeft'===e.key) {this._page.now--}
+//            else if ('ArrowRight'===e.key) {this._page.now++}
+//            else if (' '===e.key && e.shiftKey) {this._page.now--}
+//            else if (' '===e.key) {this._page.now++}
+//            else if ('PageUp'===e.key) {this._page.now--}
+//            else if ('PageDown'===e.key) {this._page.now++}
+            else {}
+        }
+
         if (Array.isArray(options)) {this.items.val=options}
         else if (null!==options && 'object'===typeof options && Object===options.constructor) {
             for (let key of Object.keys(options)) {
@@ -127,13 +152,39 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
     get y( ) { return this._y }
     set y(v) {
         if (Number.isInteger(v)) {
-            if (v<0) {this._y=this._items.length-1}
-            else if (this._items.length<=v) {this._y=0}
+            //console.log(this.items)
+            //console.log(`set y: ${this._y} v:${v} item:${this.items} item.len:${this.items.length} start`)
+            if (v<0) {this._y=this.items.length-1}
+            else if (this.items.length<=v) {this._y=0}
             else {this._y=v}
+            //console.log(`set y: ${this._y} v:${v} item.len:${this.items.length} middle`)
+
+            // 頁遷移
+            //console.log(`inPage:${this.#inPage}`)
+            if (!this.#inPage) { this.#resetPageFromY() }
+            // ハイライト
             this.#show()
+            //console.log(`set y: ${this._y} v:${v} item.len:${this.items.length} end`)
         }
     }
     get page( ) { return this._page }
+    nextPage() { // 末尾頁-1＆末尾頁の末尾項目に存在しないindexから頁遷移したとき、先頭頁へ遷移してしまうのを防ぐ。代わりに末尾頁の末尾項目へ遷移する。
+        const i = this.y + this.row
+        const l = this.items.length-1
+        //if (this.page.now===this.page.all) {this.y += this.row} // 先頭要素へ遷移する
+        if (this.page.now===this.page.all) {this.y = i % this.row} // 先頭頁の同じy位置にある要素へ遷移する
+        else {this.y = (l < i) ? this.items.length-1 : i}
+        console.log(`nextPage: i:${i} l:${l} y:${(l < i) ? this.items.length-1 : i}`)
+//        this.y = (l < i) ? this.items.length-1 : i
+    }
+    prevPage() {
+        if (1===this.page.now) { // 先頭頁から前に戻る（末尾頁へ遷移する）
+            const i = (this.row * (this.page.all - 1)) + this.y
+            const l = this.items.length-1
+            this.y = (l < i) ? l : i // 末尾頁の同じy位置にある要素へ遷移する。なければ末尾項目へ。
+        } else { this.y-=this.row }
+    }
+    //prevPage() { this.y -= this.row }
     /*
     set page(v) {
         if (0<v && v<=Math.ceil(this.items.length/this.row)) {
@@ -142,11 +193,26 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
         }    
     }
     */
+    get #inPage() { // カーソルが頁内か
+        /*
+        const max = (this._page.now * this.row - 1)
+        const min = max - this.row
+        console.log(`#inPage: min:${min} max:${max} y:${this.y}`)
+        return min<=this.y && this.y<=max
+        */
+        const min = ((this._page.now - 1) * this.row)
+        const max = Math.min(min + this.row, this.items.length) - 1
+//        console.log(`#inPage: min:${min} max:${max} y:${this.y}`)
+        return min<=this.y && this.y<=max
+    }
+    #resetPageFromY() { this.page.now = Math.floor(this.y / this.row) + 1 } // カーソル位置に合わせて頁遷移する
+
     get #nowPageItemIdxs() { return [...Array(this.row)].map((_,i)=>i + (this.row * (this.page.now - 1))).filter(idx=>idx<this.items.length) }
     get #nowPageItems() { return this.#nowPageItemIdxs.map(idx=>this.items[idx]) }
     #updateLiChild() { // li要素の内容を更新する
         console.log(`#updateLiChild():`)
         console.log(this.#nowPageItemIdxs)
+        this.#delEventLis()
         const items = this.#nowPageItems
         console.log(items)
 //        items.map((item,i)=>this.el.children[i].replaceWith(this.#makeLi(item,i)))
@@ -174,6 +240,7 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
             console.log(blankLen, blankIdxs)
             blankIdxs.map(idx=>this.ol.children[idx].style.display='none')
         }
+        this.#addEventLis()
     }
 
 //    get onShow( ) { return this._onShow }
@@ -192,7 +259,12 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
     set onWheelRight(v) { if('function'===typeof v){this._onWheelRight=v} }
     get onKeyDown( ) { return this._onKeyDown }
     set onKeyDown(v) { if('function'===typeof v){this._onKeyDown=v} }
-    get #selected() { return this.#lis.filter((li,i)=>i===this._y) }
+    //get #selected() { return this.#lis.filter((li,i)=>i===this._y) }
+    //get #selected() { return this.#lis.filter((li,i)=>i===this._y%this.row) }
+//const i=this._y%this.row; this.y<this.items.length
+    //get #selected() { return this.#lis.filter((li,i)=>i===this._y%this.row) }
+    //get #selected() { console.log(`y:${this._y} i:${this._y%this.row}`);return this.#lis.filter((li,i)=>i===this._y%this.row) }
+    get #selected() { return this.#lis.filter((li,i)=>i===this._y%this.row) }
     get selected() { return this.#selected[0] }
     get selectedIndex() { return this.#selected[1] }
     //get #lis() { return [...this.el.children] } // [...this.el.querySelectorAll(`li`)]
@@ -200,6 +272,15 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
     #show() {this.#clear(); this.selected.classList.add('selected');}
     #clear() {this.#lis.filter(li=>li.classList.contains('selected')).map(li=>li.classList.remove('selected'))}
     #onShow(data) { return data.toString() }
+
+    /*
+    #show(){if(this.#in){this.selected.scrollIntoView()}}
+    get #in() { // カーソルが表示領域内か
+        const max = (this._page.now * this.row - 1)
+        const min = max - this.row
+        return min<=this.y && this.y<=max
+    }
+    */
 
     #make() {return van.tags.div(()=>this.#makeOl(), ()=>this.page.el)}
     //#makeOl() { return van.tags.ol({tabindex:0, style:()=>`padding:0;margin:0;box-sizing:border-box;height:${this._size.height.val*this._num.row.val}px;overflow-y:auto;`}, ()=>this.#makeLis()) }
@@ -260,11 +341,20 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
         e.preventDefault()
         */
     }
+    #addEventLis() {
+        this.#lis.map(li=>li.addEventListener('mouseenter', this.#onMouseEnter.bind(this)))
+        this.#lis.map(li=>li.addEventListener('mouseleave', this.#onMouseLeave.bind(this)))
+    }
+    #delEventLis() {
+        this.#lis.map(li=>li.removeEventListener('mouseenter', this.#onMouseEnter.bind(this)))
+        this.#lis.map(li=>li.removeEventListener('mouseleave', this.#onMouseLeave.bind(this)))
+    }
     #addEvent() {
         //if (!this.el) {return}
         if (!this.ol) {return}
-        this.#lis.map(li=>li.addEventListener('mouseenter', this.#onMouseEnter.bind(this)))
-        this.#lis.map(li=>li.addEventListener('mouseleave', this.#onMouseLeave.bind(this)))
+        this.#addEventLis()
+//        this.ol.addEventListener('mouseenter', this.#onMouseEnter.bind(this))
+//        this.ol.addEventListener('mouseleave', this.#onMouseLeave.bind(this))
 //        this.el.addEventListener('wheel', this.#onWheel.bind(this), {passive:false})
 //        this.el.addEventListener('mouseup', this.#onMouseUp.bind(this))
 //        this.el.addEventListener('keydown', this.#onKeyDown.bind(this))
@@ -275,8 +365,9 @@ class FixList { // スクロールバーなし(列数固定。画面サイズ範
     }
     #delEvent() {
         if (!this.el) {return}
-        this.#lis.map(li=>li.removeEventListener('mouseenter', this.#onMouseEnter.bind(this)))
-        this.#lis.map(li=>li.removeEventListener('mouseleave', this.#onMouseLeave.bind(this)))
+        this.#delEventLis()
+//        this.ol.removeEventListener('mouseenter', this.#onMouseEnter.bind(this))
+//        this.ol.removeEventListener('mouseleave', this.#onMouseLeave.bind(this))
 //        this.el.removeEventListener('wheel', this.#onWheel.bind(this), {passive:false})
 //        this.el.removeEventListener('mouseup', this.#onMouseUp.bind(this))
 //        this.el.removeEventListener('keydown', this.#onKeyDown.bind(this))
